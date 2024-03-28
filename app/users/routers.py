@@ -26,3 +26,10 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 @router.get("/users/me/", response_model=schemas.User)
 async def read_users_me(current_user: schemas.User = Depends(auth.get_current_user)):
     return current_user
+
+@router.post("/users/{user_id}/set_vip")
+async def set_user_vip(user_id: int, vip_status: bool, db: AsyncSession = Depends(get_db), current_admin: schemas.User = Depends(auth.get_current_admin)):
+    updated_user = await crud.set_user_vip_status(db, user_id, vip_status)
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"username": updated_user.username, "is_vip": updated_user.is_vip}    

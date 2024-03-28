@@ -1,13 +1,11 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import declared_attr, Mapped, mapped_column
+from sqlalchemy.orm import declared_attr, Mapped, mapped_column, DeclarativeBase
 from sqlalchemy.ext.asyncio import async_sessionmaker
-
 from .config import settings
 
-Base = declarative_base()
 
-class CustomBase(Base):
+class Base(DeclarativeBase):
     __abstract__ = True
     @declared_attr
     def __tablename__(cls) -> str:

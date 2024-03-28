@@ -5,6 +5,7 @@ from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from sqlalchemy.orm import Session
 from . import crud, schemas
 from ..database import async_session_maker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 SECRET_KEY = "hjvx blju bnxv jovh"
 ALGORITHM = "HS256"
@@ -42,4 +43,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
     if user is None:
         raise credentials_exception
+    return user
+
+async def get_current_admin(db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme)) -> schemas.User:
+    user = await get_current_user(token=token, db=db)
+    if not user.is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required")
     return user

@@ -26,3 +26,14 @@ async def authenticate_user(db: AsyncSession, username: str, password: str):
     if not pwd_context.verify(password, user.hashed_password):
         return False
     return user
+
+async def set_user_vip_status(db: AsyncSession, user_id: int, vip_status: bool):
+    async with db.begin():
+        stmt = select(models.User).where(models.User.id == user_id)
+        result = await db.execute(stmt)
+        user = result.scalars().first()
+        if user:
+            user.is_vip = vip_status
+            await db.commit()
+            return user
+    return None
