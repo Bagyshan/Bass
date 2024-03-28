@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from . import crud, schemas
 from ..database import async_session_maker
 from sqlalchemy.ext.asyncio import AsyncSession
+from ..database import get_db
 
 SECRET_KEY = "hjvx blju bnxv jovh"
 ALGORITHM = "HS256"
@@ -13,9 +14,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-async def get_db():
-    async with async_session_maker() as session:
-        yield session
+# async def get_db():
+#     async with async_session_maker() as session:
+#         yield session
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
