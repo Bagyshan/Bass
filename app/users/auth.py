@@ -4,9 +4,8 @@ from fastapi import Depends, HTTPException, status, Security
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from sqlalchemy.orm import Session
 from . import crud, schemas
-from ..database import async_session_maker
-from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
 
 SECRET_KEY = "hjvx blju bnxv jovh"
 ALGORITHM = "HS256"
