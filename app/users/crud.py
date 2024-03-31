@@ -37,3 +37,33 @@ async def set_user_vip_status(db: AsyncSession, user_id: int, vip_status: bool):
             await db.commit()
             return user
     return None
+
+async def get_users(db: AsyncSession):
+    async with db as session:
+        result = await session.execute(select(models.User))
+        users = result.scalars().all()
+        return users
+    
+async def update_user(db: AsyncSession, user_id: int, user_update: schemas.UserUpdate):
+    async with db as session:
+        result = await session.execute(select(models.User).filter(models.User.id == user_id))
+        user = result.scalars().first()
+        if user:
+            user_data = user_update.dict(exclude_unset=True)
+            for key, value in user_data.items():
+                setattr(user, key, value)
+            session.add(user)
+            await session.commit()
+            await session.refresh(user)
+            return user
+        
+async def delete_user(db: AsyncSession, user_id: int):
+    async with db.begin():
+        stmt = select(models.User).where(models.User.id == user_id)
+        result = await db.execute(stmt)
+        user = result.scalars().first()
+        if user:
+            await db.delete(user)
+            await db.commit()
+            return True
+    return False
