@@ -1,8 +1,8 @@
-"""add post table
+"""all migrations
 
-Revision ID: cb49e1d57131
+Revision ID: 1085426df907
 Revises: 
-Create Date: 2024-03-28 17:07:06.723952
+Create Date: 2024-04-01 15:43:35.110951
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'cb49e1d57131'
+revision: str = '1085426df907'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -34,14 +34,17 @@ def upgrade() -> None:
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_index(op.f('ix_users_username'), 'users', ['username'], unique=True)
     op.create_table('posts',
-    sa.Column('title', sa.String(), nullable=False),
-    sa.Column('body', sa.String(), nullable=False),
-    sa.Column('image', sa.String(), nullable=False),
+    sa.Column('title', sa.String(length=100), nullable=False),
+    sa.Column('body', sa.Text(), server_default='', nullable=False),
+    sa.Column('image', sa.Text(), server_default='', nullable=False),
     sa.Column('owner', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.Column('lat', sa.Float(), nullable=False),
     sa.Column('lng', sa.Float(), nullable=False),
+    sa.Column('date', sa.Date(), nullable=False),
+    sa.Column('time', sa.Time(), nullable=False),
+    sa.Column('is_free', sa.Boolean(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['owner'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')

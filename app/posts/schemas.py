@@ -1,13 +1,17 @@
-
+from typing import TYPE_CHECKING
 from datetime import datetime
 from typing import Optional
+from datetime import datetime, date, time
 
 from pydantic import BaseModel
 
-
-from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional
+
+
+if TYPE_CHECKING:
+    from app.users.models import User
+
 
 class PostBase(BaseModel):
     title: str
@@ -15,9 +19,34 @@ class PostBase(BaseModel):
     image: str
     lat: float
     lng: float
+    date: date
+    time: time
+    is_free: bool
+
+    class Config:
+        orm_mode = True
+
+class PostGet(PostBase):
+    id: int
+    owner: str
+    owner_id: int
+
+    class Config:
+        orm_mode = True
 
 class PostCreate(PostBase):
     owner: int
 
-class PostUpdate(PostBase):
+class PostUpdatePut(PostBase):
     pass
+
+
+class PostUpdatePatch(PostBase):
+    title: Optional[str] = None
+    body: Optional[str] = None
+    image: Optional[str] = None
+    lat: Optional[float] = None
+    lng: Optional[float] = None
+    date: Optional[date]
+    time: Optional[time]
+    is_free: Optional[bool] = None
