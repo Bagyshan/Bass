@@ -8,3 +8,4 @@ databases
 uvicorn
 passlib[bcrypt]
 python-jose[cryptography]
+gunicorn
