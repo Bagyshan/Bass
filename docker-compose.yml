@@ -30,6 +30,18 @@ services:
     networks:
       - custom
 
+  nginx:
+    container_name: web
+    image: nginx:alpine
+    depends_on:
+      - app
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    networks:
+      - custom
+
 networks:
   custom:
     driver: bridge
