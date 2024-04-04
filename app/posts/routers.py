@@ -3,12 +3,13 @@ from .models import Post
 from .schemas import PostBase, PostCreate, PostUpdatePut, PostGet, PostUpdatePatch
 from ..database import scoped_session_dependency
 from sqlalchemy.ext.asyncio import AsyncSession
-from . import crud
-from app.users.models import User
+from . import crud, schemas
+from app.users.models import User   
+from app.users.auth import get_current_admin
 from .dependencies import get_current_vip_user, post_by_id
 from . import models
 from typing import List
-
+from ..database import get_db
 
 router = APIRouter(prefix='/post', tags=['posts'])
 
@@ -85,3 +86,21 @@ async def delete_post(
 ) -> str:
     user_id = current_user_id.id
     return await crud.delete_post(session=session, post_id=post_id, current_user_id=user_id)
+
+
+@router.post("/categories/", response_model=schemas.Category)
+async def create_category(category: schemas.CategoryCreate, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_admin)):
+    return await crud.create_category(db=db, category=category)
+
+@router.get("/categories/", response_model=List[schemas.Category])
+async def read_categories(db: AsyncSession = Depends(get_db)):
+    return await crud.get_categories(db=db)
+
+@router.put("/categories/{category_id}/", response_model=schemas.Category)
+async def update_category(category_id: int, category: schemas.CategoryCreate, db: AsyncSession = Depends(get_db), current_admin: User = Depends(get_current_admin)):
+    return await crud.update_category(db=db, category_id=category_id, category_data=category)
+
+@router.delete("/categories/{category_id}/")
+async def delete_category(category_id: int, db: AsyncSession = Depends(get_db), current_admin: User = Depends(get_current_admin)):
+    await crud.delete_category(db=db, category_id=category_id)
+    return {"detail": "Category deleted successfully"}
