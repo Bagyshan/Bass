@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
-from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime, date, time
 
 from pydantic import BaseModel
@@ -50,3 +49,18 @@ class PostUpdatePatch(PostBase):
     date: Optional[date]
     time: Optional[time]
     is_free: Optional[bool] = None
+
+
+
+class CategoryBase(BaseModel):
+    name: str
+
+class CategoryCreate(CategoryBase):
+    pass
+
+class Category(CategoryBase):
+    id: int
+    posts: List[PostBase] = []
+
+    class Config:
+        orm_mode = True

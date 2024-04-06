@@ -6,9 +6,9 @@ from sqlalchemy.engine import Result
 from sqlalchemy.orm import joinedload, selectinload
 import json
 from datetime import datetime, date, time
-
+from typing import List
 from .schemas import PostBase
-from .models import Post
+from .models import Post, Category
 from . import schemas, models
 from ..database import scoped_session_dependency
 
@@ -75,23 +75,6 @@ async def get_posts(session: AsyncSession) -> list[dict]:
     ]
 
 
-# async def update_post(db: AsyncSession, post_id: int, post: schemas.PostUpdate):
-#     async with db() as session:
-#         db_post = await session.execute(select(Post).filter(Post.id == post_id))
-#         if db_post := db_post.scalar():
-#             for key, value in post.dict().items():
-#                 setattr(db_post, key, value)
-#             await session.commit()
-#             await session.refresh(db_post)
-#         return db_post
-
-# async def delete_post(db: AsyncSession, post_id: int):
-#     async with db() as session:
-#         db_post = await session.execute(select(Post).filter(Post.id == post_id))
-#         if db_post := db_post.scalar():
-#             session.delete(db_post)
-#             await session.commit()
-#         return db_post
 
 
 async def update_post(
@@ -148,3 +131,41 @@ async def delete_post(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Post not found",
         )
+    
+
+
+async def create_category(db: AsyncSession, category: schemas.CategoryCreate) -> models.Category:
+    db_category = models.Category(**category.dict())
+    db.add(db_category)
+    await db.commit()
+    await db.refresh(db_category)
+    return db_category
+
+async def get_categories(db: AsyncSession) -> List[models.Category]:
+    async with db:
+        result = await db.execute(select(models.Category))
+        categories = result.scalars().all()
+    return categories
+
+async def update_category(db: AsyncSession, category_id: int, category_data: schemas.CategoryCreate) -> models.Category:
+    async with db:
+        result = await db.execute(select(models.Category).where(models.Category.id == category_id))
+        category = result.scalar()
+        if category:
+            for key, value in category_data.dict().items():
+                setattr(category, key, value)
+            await db.commit()
+            await db.refresh(category)
+            return category
+        else:
+            raise HTTPException(status_code=404, detail="Category not found")
+
+async def delete_category(db: AsyncSession, category_id: int) -> None:
+    async with db:
+        result = await db.execute(select(models.Category).where(models.Category.id == category_id))
+        category = result.scalar()
+        if category:
+            await db.delete(category)
+            await db.commit()
+        else:
+            raise HTTPException(status_code=404, detail="Category not found")
