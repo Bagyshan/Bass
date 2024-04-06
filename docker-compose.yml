@@ -1,38 +1,41 @@
-version: "3.7"
+version: "3.8"
 
 services:
   db:
     image: postgres
-    restart: on-failure
-    container_name: db
-    command: -p 5432
-    expose:
-      - 5432
-    env_file:
-      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: always
     networks:
       - custom
 
   app:
-    build:
-      context: .
+    build: .
     environment:
-      - sqlalchemy.url=postgresql+asyncpg://db
-    env_file:
-      - .env
-    container_name: app
-    command: ["/bass_to_bass/docker/app.sh"]
-    restart: always
+      - DB_HOST=db
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASS=${POSTGRES_PASSWORD}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
     ports:
-      - 9999:8000
+      - 8000:8000
     depends_on:
       - db
+    restart: always
+    command: >
+      sh -c "/app/docker/app.sh"
     networks:
       - custom
 
   nginx:
     container_name: web
-    image: nginx:alpine
+    image: nginx
     depends_on:
       - app
     ports:
@@ -41,6 +44,9 @@ services:
       - ./nginx:/etc/nginx/conf.d
     networks:
       - custom
+
+volumes:
+  db_data:
 
 networks:
   custom:
