@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Query
 from .models import Post
 from .schemas import PostBase, PostCreate, PostUpdatePut, PostGet, PostUpdatePatch
 from ..database import scoped_session_dependency
@@ -8,9 +8,9 @@ from app.users.models import User
 from app.users.auth import get_current_admin
 from .dependencies import get_current_vip_user, post_by_id
 from . import models
-from typing import List
+from typing import List, Optional
 from ..database import get_db
-
+from datetime import date
 router = APIRouter(prefix='/post', tags=['posts'])
 
 @router.post(
@@ -104,3 +104,11 @@ async def update_category(category_id: int, category: schemas.CategoryCreate, db
 async def delete_category(category_id: int, db: AsyncSession = Depends(get_db), current_admin: User = Depends(get_current_admin)):
     await crud.delete_category(db=db, category_id=category_id)
     return {"detail": "Category deleted successfully"}
+
+
+@router.get("/posts/", response_model=List[PostGet])
+async def get_posts_by_dates(
+    session: AsyncSession = Depends(scoped_session_dependency),
+    dates: Optional[List[date]] = Query(None)
+) -> List[PostGet]:
+    return await crud.get_posts_by_dates(session=session, dates=dates)

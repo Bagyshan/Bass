@@ -6,7 +6,7 @@ from sqlalchemy.engine import Result
 from sqlalchemy.orm import joinedload, selectinload
 import json
 from datetime import datetime, date, time
-from typing import List
+from typing import List, Optional
 from .schemas import PostBase
 from .models import Post, Category
 from . import schemas, models
@@ -169,3 +169,11 @@ async def delete_category(db: AsyncSession, category_id: int) -> None:
             await db.commit()
         else:
             raise HTTPException(status_code=404, detail="Category not found")
+        
+async def get_posts_by_dates(session: AsyncSession, dates: Optional[List[date]]) -> list:
+    query = select(Post)
+    if dates:
+        query = query.filter(Post.date.in_(dates))
+    result = await session.execute(query)
+    posts = result.scalars().all()
+    return posts
