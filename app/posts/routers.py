@@ -33,8 +33,11 @@ async def create_post(
 
 @router.get("/", response_model=list[PostGet])
 async def get_posts(
+    dates: date = None,
     session: AsyncSession = Depends(scoped_session_dependency),
 ) -> List[PostGet]:
+    if dates:
+        return await crud.get_posts_by_dates(session=session, dates=dates)
     return await crud.get_posts(session=session)
 
 
@@ -106,9 +109,9 @@ async def delete_category(category_id: int, db: AsyncSession = Depends(get_db), 
     return {"detail": "Category deleted successfully"}
 
 
-@router.get("/posts/", response_model=List[PostGet])
+@router.get("/", response_model=List[PostGet])
 async def get_posts_by_dates(
+    dates: date,
     session: AsyncSession = Depends(scoped_session_dependency),
-    dates: Optional[List[date]] = Query(None)
 ) -> List[PostGet]:
     return await crud.get_posts_by_dates(session=session, dates=dates)

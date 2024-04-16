@@ -170,10 +170,8 @@ async def delete_category(db: AsyncSession, category_id: int) -> None:
         else:
             raise HTTPException(status_code=404, detail="Category not found")
         
-async def get_posts_by_dates(session: AsyncSession, dates: Optional[List[date]]) -> list:
-    query = select(Post)
-    if dates:
-        query = query.filter(Post.date.in_(dates))
+async def get_posts_by_dates(session: AsyncSession, dates: date) -> list[dict] | None:
+    query = select(Post).options(joinedload(Post.owner_details)).filter(Post.date == dates)
     result = await session.execute(query)
     posts = result.scalars().all()
     return [
