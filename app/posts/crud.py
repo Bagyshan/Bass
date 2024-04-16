@@ -176,4 +176,18 @@ async def get_posts_by_dates(session: AsyncSession, dates: Optional[List[date]])
         query = query.filter(Post.date.in_(dates))
     result = await session.execute(query)
     posts = result.scalars().all()
-    return posts
+    return [
+        {
+            "id": post.id, 
+            "owner": post.owner_details.username, 
+            "owner_id": post.owner_details.id, 
+            "title": post.title, 
+            "body": post.body, 
+            "image": post.image, 
+            "date": post.date,
+            "time": post.time, 
+            "is_free": post.is_free,
+            "lat": post.lat, 
+            "lng": post.lng, 
+        } for post in posts
+    ]
