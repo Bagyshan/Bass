@@ -8,7 +8,7 @@ from sqlalchemy import String, Text, Column, Integer
 
 if TYPE_CHECKING:
     from app.users.models import User
-
+                        
 
 class Post(Base):
     title: Mapped[str] = mapped_column(String(100), unique=False)

@@ -56,7 +56,7 @@ class CategoryBase(BaseModel):
     name: str
 
 class CategoryCreate(CategoryBase):
-    pass
+    name: str
 
 class Category(CategoryBase):
     id: int

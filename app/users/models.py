@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean
-
-from ..database import Base
 from sqlalchemy.orm import relationship, Mapped
+from ..database import Base
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -15,8 +14,8 @@ class User(Base):
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
     is_vip = Column(Boolean, default=False)
-    is_admin = Column(Boolean, default=False)  
-    first_name = Column(String, index=True)  
-    last_name = Column(String, index=True)   
-    
+    is_admin = Column(Boolean, default=False)
+    first_name = Column(String, index=True)
+    last_name = Column(String, index=True)
     posts: Mapped[list["Post"]] = relationship("Post", back_populates="owner_details")
+    favorites = relationship("Favorite", back_populates="user")

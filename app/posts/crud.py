@@ -12,7 +12,7 @@ from .models import Post, Category
 from . import schemas, models
 from ..database import scoped_session_dependency
 
-
+                
 async def create_post(
         session: AsyncSession, 
         post: schemas.PostBase,
